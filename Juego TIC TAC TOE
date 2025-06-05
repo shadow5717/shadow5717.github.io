@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tic Tac Toe - Juego </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 8px;
+      justify-content: center;
+      margin: 20px auto;
+    }
+    .cell {
+      background: #f3f4f6;
+      border: 2px solid #3b82f6;
+      font-size: 3rem;
+      font-weight: 700;
+      color: #2563eb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      border-radius: 8px;
+      transition: background-color 0.3s;
+    }
+    .cell:hover {
+      background-color: #bfdbfe;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col items-center p-6">
+
+  <header class="mb-6 text-center">
+    <h1 class="text-4xl font-bold text-blue-600 mb-2">Tic Tac Toe 🎯</h1>
+    <p class="text-gray-700">¡El clásico juego de Tres en línea!</p>
+  </header>
+
+  <main class="flex flex-col items-center">
+    <div id="game" class="grid-container">
+    </div>
+
+    <div id="status" class="mt-6 text-xl font-semibold text-blue-700"></div>
+
+    <button id="restartBtn" class="mt-6 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-500 transition">
+      Reiniciar Juego
+    </button>
+  </main>
+
+  <script>
+    const gameContainer = document.getElementById('game');
+    const statusDiv = document.getElementById('status');
+    const restartBtn = document.getElementById('restartBtn');
+
+    let board = ['', '', '', '', '', '', '', '', ''];
+    let currentPlayer = 'X';
+    let gameActive = true;
+
+    const winningConditions = [
+      [0,1,2], [3,4,5], [6,7,8], 
+      [0,3,6], [1,4,7], [2,5,8],  
+      [0,4,8], [2,4,6]            
+    ];
+
+    function handleCellClick(clickedCellEvent) {
+      const clickedCell = clickedCellEvent.target;
+      const clickedIndex = parseInt(clickedCell.getAttribute('data-index'));
+
+      if (board[clickedIndex] !== '' || !gameActive) return;
+
+      updateCell(clickedCell, clickedIndex);
+      checkResult();
+    }
+
+    function updateCell(cell, index) {
+      board[index] = currentPlayer;
+      cell.textContent = currentPlayer;
+    }
+
+    function changePlayer() {
+      currentPlayer = (currentPlayer === 'X') ? 'O' : 'X';
+      statusDiv.textContent = `Turno de: ${currentPlayer}`;
+    }
+
+    function checkResult() {
+      let roundWon = false;
+      for (let condition of winningConditions) {
+        const [a,b,c] = condition;
+        if (board[a] && board[a] === board[b] && board[b] === board[c]) {
+          roundWon = true;
+          break;
+        }
+      }
+
+      if (roundWon) {
+        statusDiv.textContent = `¡Jugador ${currentPlayer} gana! 🎉`;
+        gameActive = false;
+        return;
+      }
+
+      if (!board.includes('')) {
+        statusDiv.textContent = '¡Empate! 🤝';
+        gameActive = false;
+        return;
+      }
+
+      changePlayer();
+    }
+
+    function restartGame() {
+      board = ['', '', '', '', '', '', '', '', ''];
+      currentPlayer = 'X';
+      gameActive = true;
+      statusDiv.textContent = `Turno de: ${currentPlayer}`;
+      gameContainer.querySelectorAll('.cell').forEach(cell => cell.textContent = '');
+    }
+
+    function initializeGame() {
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.setAttribute('data-index', i);
+        cell.addEventListener('click', handleCellClick);
+        gameContainer.appendChild(cell);
+      }
+      statusDiv.textContent = `Turno de: ${currentPlayer}`;
+    }
+
+    restartBtn.addEventListener('click', restartGame);
+
+    initializeGame();
+  </script>
+
+</body>
+</html>
